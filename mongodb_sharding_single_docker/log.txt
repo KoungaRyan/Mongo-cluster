@@ -1,0 +1,56 @@
+[direct: mongos] gestion_promotion> load("/data/mongodb_crud_script.js")
+
+=== OPÉRATIONS CREATE ===
+
+✓ Un étudiant inséré
+✓ Plusieurs étudiants insérés
+
+=== OPÉRATIONS READ ===
+
+--- Tous les étudiants (5 premiers) ---
+
+--- Recherche par nom (Dupont) ---     
+
+--- Recherche par email ---
+
+--- Étudiants de Bordeaux ---
+
+--- Étudiants nés après 2000 ---
+
+--- Nom, prénom et email uniquement ---
+
+--- Étudiants dont le nom commence par 'Dup' ---
+
+--- Étudiants ayant au moins une inscription ---
+
+--- Étudiants triés par nom (ordre alphabétique) ---
+
+--- Nombre total d'étudiants ---
+Total: 3
+
+--- Nombre d'étudiants à Bordeaux ---
+Total: 1
+
+=== OPÉRATIONS UPDATE ===
+
+MongoServerError: A {multi:false} update on a sharded collection must contain an exact match on _id (and have the collection default collation) or target a single shard (and have the simple collation), but this update targeted 2 shards. Update request: { q: { email: "marie.dupont@email.com" }, u: { $set: { telephone: "0607080910", adr
+
+--- Étudiants nés après 2000 ---
+
+--- Nom, prénom et email uniquement ---
+
+--- Étudiants dont le nom commence par 'Dup' ---
+
+--- Étudiants ayant au moins une inscription ---
+
+--- Étudiants triés par nom (ordre alphabétique) ---
+
+--- Nombre total d'étudiants ---
+Total: 3
+
+--- Nombre d'étudiants à Bordeaux ---
+Total: 1
+
+=== OPÉRATIONS UPDATE ===
+
+MongoServerError: A {multi:false} update on a sharded collection must contain an exact match on _id (and have the collection default collation) or target a single shard (and have the simple collation), but this update targeted 2 shards. Update request: { q: { email: "marie.dupont@email.com" }, u: { $set: { telephone: "0607080910", adresse.code_postal: "33100" } }, multi: false, upsert: false }, shard key pattern: { nom: 1 }

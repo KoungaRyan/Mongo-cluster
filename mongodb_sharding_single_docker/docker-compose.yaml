@@ -1,0 +1,141 @@
+version: "3.8"
+
+networks:
+  mongo-net:
+    driver: bridge
+
+volumes:
+  config1_data:
+  config2_data:
+  config3_data:
+
+  shard1a_data:
+  shard1b_data:
+  shard1c_data:
+
+  shard2a_data:
+  shard2b_data:
+  shard2c_data:
+
+  shard3a_data:
+  shard3b_data:
+  shard3c_data:
+
+services:
+
+  # ======================
+  # CONFIG SERVERS
+  # ======================
+  config1:
+    image: mongo:7
+    container_name: config1
+    command: mongod --configsvr --replSet configReplSet --port 27017
+    volumes: [config1_data:/data/db]
+    networks: [mongo-net]
+
+  config2:
+    image: mongo:7
+    container_name: config2
+    command: mongod --configsvr --replSet configReplSet --port 27017
+    volumes: [config2_data:/data/db]
+    networks: [mongo-net]
+
+  config3:
+    image: mongo:7
+    container_name: config3
+    command: mongod --configsvr --replSet configReplSet --port 27017
+    volumes: [config3_data:/data/db]
+    networks: [mongo-net]
+
+  # ======================
+  # SHARD 1
+  # ======================
+  shard1a:
+    image: mongo:7
+    container_name: shard1a
+    command: mongod --shardsvr --replSet shard1RS --port 27017
+    volumes: [shard1a_data:/data/db]
+    networks: [mongo-net]
+
+  shard1b:
+    image: mongo:7
+    container_name: shard1b
+    command: mongod --shardsvr --replSet shard1RS --port 27017
+    volumes: [shard1b_data:/data/db]
+    networks: [mongo-net]
+
+  shard1c:
+    image: mongo:7
+    container_name: shard1c
+    command: mongod --shardsvr --replSet shard1RS --port 27017
+    volumes: [shard1c_data:/data/db]
+    networks: [mongo-net]
+
+  # ======================
+  # SHARD 2
+  # ======================
+  shard2a:
+    image: mongo:7
+    container_name: shard2a
+    command: mongod --shardsvr --replSet shard2RS --port 27017
+    volumes: [shard2a_data:/data/db]
+    networks: [mongo-net]
+
+  shard2b:
+    image: mongo:7
+    container_name: shard2b
+    command: mongod --shardsvr --replSet shard2RS --port 27017
+    volumes: [shard2b_data:/data/db]
+    networks: [mongo-net]
+
+  shard2c:
+    image: mongo:7
+    container_name: shard2c
+    command: mongod --shardsvr --replSet shard2RS --port 27017
+    volumes: [shard2c_data:/data/db]
+    networks: [mongo-net]
+
+  # ======================
+  # SHARD 3
+  # ======================
+  shard3a:
+    image: mongo:7
+    container_name: shard3a
+    command: mongod --shardsvr --replSet shard3RS --port 27017
+    volumes: [shard3a_data:/data/db]
+    networks: [mongo-net]
+
+  shard3b:
+    image: mongo:7
+    container_name: shard3b
+    command: mongod --shardsvr --replSet shard3RS --port 27017
+    volumes: [shard3b_data:/data/db]
+    networks: [mongo-net]
+
+  shard3c:
+    image: mongo:7
+    container_name: shard3c
+    command: mongod --shardsvr --replSet shard3RS --port 27017
+    volumes: [shard3c_data:/data/db]
+    networks: [mongo-net]
+
+  # ======================
+  # ROUTER
+  # ======================
+  mongos:
+    image: mongo:7
+    container_name: mongos
+    depends_on:
+      - config1
+      - config2
+      - config3
+    command: >
+      mongos
+      --configdb configReplSet/config1:27017,config2:27017,config3:27017
+      --port 27017
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./scripts:/data
+    networks: [mongo-net]
+

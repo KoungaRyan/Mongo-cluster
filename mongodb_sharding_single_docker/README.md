@@ -127,10 +127,12 @@ sh.enableSharding("gestion_promotion")
 
 db.etudiants.createIndex({ id: 1 })
 
-sh.shardCollection("gestion_promotion.etudiants", { id: 1 })
+sh.shardCollection("gestion_promotion.etudiants", { id: "hashed" })
 
 
-docker exec -it mongos mongoimport --db gestion_promotion --collection etudiants --file /data/etudiants.json.json --jsonArray
+docker exec -it mongos mongoimport --db gestion_promotion --collection etudiants --file /data/etudiants3.json --jsonArray
+
+
 ```
 
 ### Controler l'insertion
@@ -144,6 +146,47 @@ sh.status()
 ```
 db.etudiants.getShardDistribution()
 ```
+
+## Optionel si la collection ne se shard pas autonatiquement
+### Créer manuellement des chunks
+```
+sh.splitAt(
+  "gestion_promotion.etudiants",
+  { id: 4000 }
+)
+
+sh.splitAt(
+  "gestion_promotion.etudiants",
+  { id: 8000 }
+)
+```
+
+### Lancer le balancer
+```
+sh.startBalancer()
+```
+
+### Force une migration manuelle
+```
+sh.moveChunk(
+  "gestion_promotion.etudiants",
+  { id: 1 },
+  "shard1RS"
+)
+
+sh.moveChunk(
+  "gestion_promotion.etudiants",
+  { id: 5000 },
+  "shard3RS"
+)
+```
+
+### Vérifier la distribution
+```
+db.etudiants.getShardDistribution()
+```
+
+
 
 ## TESTS DE TOLÉRANCE AUX PANNES
 

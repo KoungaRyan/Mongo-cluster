@@ -22,25 +22,25 @@ try {
     print("⚠ Sharding déjà activé ou erreur: " + e.message);
 }
 
-// Création de l'index shard key sur 'nom'
+// Création de l'index shard key sur 'id' (obligatoire avant sharding)
 try {
-    db.etudiants.createIndex({ nom: 1 });
-    print("✓ Index créé sur le champ 'nom'");
+    db.etudiants.createIndex({ id: 1 });
+    print("✓ Index créé sur le champ 'id' pour le sharding");
 } catch (e) {
     print("⚠ Index déjà existant: " + e.message);
 }
 
 // Sharding de la collection etudiants
 try {
-    sh.shardCollection("gestion_promotion.etudiants", { nom: 1 });
-    print("✓ Collection etudiants shardée avec shard key 'nom'");
+    sh.shardCollection("gestion_promotion.etudiants", {id: "hashed" });
+    print("✓ Collection etudiants shardée avec shard key 'id'");
 } catch (e) {
     print("⚠ Collection déjà shardée ou erreur: " + e.message);
 }
 
 // Nettoyage (optionnel - décommenter si besoin)
 print("\n--- Nettoyage des données de test ---");
-db.etudiants.deleteMany({ id: { $gte: 1001 } });
+db.etudiants.deleteMany({ id: { $gte: 11001 } });
 print("✓ Données de test précédentes supprimées\n");
 
 // Vérification du statut du sharding
@@ -66,7 +66,7 @@ print("\n=== OPÉRATIONS CREATE ===\n");
 
 // Insérer un seul étudiant avec la structure Mockaroo
 var result1 = db.etudiants.insertOne({
-    id: 1001,
+    id: 11001,
     prenom: "Marie",
     nom: "Dupont",
     email: "marie.dupont@email.com",
@@ -80,7 +80,7 @@ print("✓ Un étudiant inséré - _id: " + result1.insertedId);
 // Insérer plusieurs étudiants
 var result2 = db.etudiants.insertMany([
     {
-        id: 1002,
+        id: 11002,
         prenom: "Pierre",
         nom: "Martin",
         email: "pierre.martin@email.com",
@@ -89,7 +89,7 @@ var result2 = db.etudiants.insertMany([
         promotion_id: "PROMO_2025"
     },
     {
-        id: 1003,
+        id: 11003,
         prenom: "Sophie",
         nom: "Bernard",
         email: "sophie.bernard@email.com",
@@ -98,7 +98,7 @@ var result2 = db.etudiants.insertMany([
         promotion_id: "PROMO_2026"
     },
     {
-        id: 1004,
+        id: 11004,
         prenom: "Lucas",
         nom: "Petit",
         email: "lucas.petit@email.com",
@@ -107,7 +107,7 @@ var result2 = db.etudiants.insertMany([
         promotion_id: "PROMO_2025"
     },
     {
-        id: 1005,
+        id: 11005,
         prenom: "Emma",
         nom: "Dubois",
         email: "emma.dubois@email.com",
@@ -135,7 +135,7 @@ db.etudiants.find().limit(5).forEach(doc => {
     print(`${doc.id} - ${doc.prenom} ${doc.nom} - ${doc.email}`);
 });
 
-// Rechercher un étudiant par nom (utilise le shard key)
+// Rechercher un étudiant par nom 
 print("\n--- Recherche par nom (Dupont) ---");
 var dupont = db.etudiants.find({ nom: "Dupont" }).toArray();
 print("Trouvé: " + dupont.length + " résultat(s)");
@@ -152,10 +152,10 @@ if (etudiant) {
 }
 
 // Rechercher par promotion
-print("\n--- Étudiants de PROMO_2025 ---");
+print("\n--- 10 Étudiants de PROMO_2025 ---");
 var count_promo = db.etudiants.countDocuments({ promotion_id: "PROMO_2025" });
 print("Total: " + count_promo + " étudiant(s)");
-db.etudiants.find({ promotion_id: "PROMO_2025" }).forEach(doc => {
+db.etudiants.find({ promotion_id: "PROMO_2025" }).limit(10).forEach(doc => {
     print(`  - ${doc.prenom} ${doc.nom}`);
 });
 
@@ -226,10 +226,7 @@ if (marie) {
 // Méthode 2 : Inclure le shard key (nom) dans la requête
 print("\n--- Mise à jour avec shard key (nom) ---");
 var updateResult2 = db.etudiants.updateOne(
-    { 
-        nom: "Martin",  // Shard key OBLIGATOIRE
-        prenom: "Pierre"
-    },
+    { id: 11002, nom: "Martin", prenom: "Pierre" },
     { 
         $set: { 
             telephone: "0699887766",
@@ -301,7 +298,7 @@ if (toDelete) {
 print("\n--- Suppression avec shard key (nom) ---");
 var deleteResult2 = db.etudiants.deleteOne({ 
     nom: "Petit",
-    id: 1004
+    id: 11004
 });
 print(`✓ ${deleteResult2.deletedCount} document(s) supprimé(s) (Lucas Petit)`);
 
@@ -548,5 +545,4 @@ print("✓ Configuration sharding OK");
 print("✓ Opérations CRUD testées");
 print("✓ Agrégations et requêtes avancées exécutées");
 print("\nNote: Pour les updates/deletes sur collections shardées:");
-print("  - Utilisez toujours _id (recommandé)");
-print("  - OU incluez le shard key (nom) dans la requête\n");
+print("  - Utilisez toujours id (recommandé)");

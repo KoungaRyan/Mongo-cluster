@@ -107,20 +107,14 @@ sh.status()
 docker exec -it mongos mongosh
 ```
 
-### Insertion du fichier js
+### Executer un srcipt de CRUD
 ```
+
 load("/data/mongodb_crud_script.js")
-
-```
- 
-### Rendre le script accessible au conteneur
-```
-docker cp scripts/mongo_crud_script.js mongos:/mongo_crud_script.js
 ```
 
-### Insertion du fichier JSON
+### Insertion des donnees via un fichier Json
 ```
-
 use gestion_promotion
 
 sh.enableSharding("gestion_promotion")
@@ -129,10 +123,9 @@ db.etudiants.createIndex({ id: 1 })
 
 sh.shardCollection("gestion_promotion.etudiants", { id: "hashed" })
 
-
+-----
 docker exec -it mongos mongoimport --db gestion_promotion --collection etudiants --file /data/etudiants3.json --jsonArray
-
-
+-----
 ```
 
 ### Controler l'insertion
@@ -147,7 +140,7 @@ sh.status()
 db.etudiants.getShardDistribution()
 ```
 
-## Optionel si la collection ne se shard pas autonatiquement
+## Optionnel si la collection ne se shard pas automatiquement
 ### Créer manuellement des chunks
 ```
 sh.splitAt(
@@ -198,6 +191,11 @@ docker stop shard1b
 sh.status()
 ```
 
+## Vérifier l’élection automatique du primary
+```
+rs.isMaster()
+```
+
 ### Test 2 — arrêt du PRIMARY
 ```
 docker stop shard1a
@@ -208,7 +206,6 @@ docker exec -it shard1c mongosh
 rs.status()
 
 ```
-
 ### Test 3 — arrêt d’un Config Server
 ```
 docker stop config2
